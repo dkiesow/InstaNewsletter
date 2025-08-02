@@ -6,7 +6,7 @@ It fetches recent articles, allows you to select which to include, summarizes th
 ## Features
 
 - Fetches articles from your Instapaper RSS feed (configurable).
-- Only includes articles from the past 7 days.
+- Only includes articles from the past 7 days. (configurable).
 - Skips articles already processed (by URL).
 - Presents headlines in a multi-select GUI.
 - Summarizes articles using an abstractive Hugging Face model (BART).
