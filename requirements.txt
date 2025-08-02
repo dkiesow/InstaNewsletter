@@ -1,0 +1,10 @@
+# Add your project dependencies here
+newspaper
+feedparser
+instapaperlib
+lxml
+lxml_html_clean
+transformers
+torch
+# Tkinter is included with Python standard library
+# For Apple Silicon/MPS support, torch>=1.12 is required
