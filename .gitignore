@@ -6,3 +6,5 @@ __pycache__/
 .idea/
 .vscode/
 newsletter/config.py
+newsletter.sqlite3
+newsletter/newsletter_*.md
