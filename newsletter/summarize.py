@@ -89,9 +89,11 @@ def process_article(article_info, summarizer, tokenizer, summary_max_words):
 def export_to_markdown(records, export_path):
     print("Exporting records to markdown...")  # Debug print
     import datetime
+    from config import NEWSLETTER_HEADLINE
     date_str = datetime.datetime.now().strftime("%Y%m%d")
     filename = os.path.join(export_path, f"newsletter_{date_str}.md")
     with open(filename, "w", encoding="utf-8") as f:
+        f.write(f"# {NEWSLETTER_HEADLINE}\n\n")
         for rec in records:
             headline = rec['headline'].replace('\n', ' ').replace('\r', ' ')
             headline = headline.replace('[', '\\[').replace(']', '\\]')
@@ -140,4 +142,3 @@ def fetch_instapaper_articles(rss_url, db_path, max_articles):
             })
     print(f"Fetched {len(recent[:max_articles])} articles for selection.")  # Debug print
     return recent[:max_articles]
-
