@@ -64,6 +64,37 @@ def main():
     if processed_records:
         save_to_db(DB_PATH, processed_records)
         export_to_markdown(processed_records, EXPORT_PATH)
+
+        # Aggregate all new summaries and summarize them in headline style
+        all_summaries = " ".join([rec["summary"] for rec in processed_records if rec.get("summary")])
+        summary_headline = ""
+        if all_summaries.strip():
+            print("Concatenated article summaries for headline:")
+            print(all_summaries)  # Debug print of concatenated summaries
+            print("Generating a headline for article summaries...")
+            prompt = (
+                "Write a simple headline for this text: " + all_summaries
+            )
+            agg_summary = summarizer(
+                prompt,
+                max_length=60,
+                min_length=10,
+                do_sample=False
+            )[0]['summary_text'].strip()
+            # Ensure the headline is at most 60 characters
+            if len(agg_summary) > 60:
+                agg_summary = agg_summary[:60]
+            # Trim back to the previous sentence stop if incomplete
+            import re
+            last_punct = max(agg_summary.rfind('.'), agg_summary.rfind('!'), agg_summary.rfind('?'))
+            if last_punct != -1 and last_punct < len(agg_summary) - 1:
+                agg_summary = agg_summary[:last_punct+1].strip()
+            summary_headline = agg_summary
+            print(f"Headline-style aggregate summary (<=60 chars): {summary_headline}")
+        else:
+            summary_headline = ""
+        # Pass the summary_headline to export_to_markdown
+        export_to_markdown(processed_records, EXPORT_PATH, summary_headline=summary_headline)
     else:
         print("No articles could be processed.")
 

@@ -6,5 +6,6 @@ lxml
 lxml_html_clean
 transformers
 torch
+inflect
 # Tkinter is included with Python standard library
 # For Apple Silicon/MPS support, torch>=1.12 is required

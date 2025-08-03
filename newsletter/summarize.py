@@ -4,6 +4,8 @@ from newspaper.article import ArticleException
 import re
 import sqlite3
 import os
+import requests
+from bs4 import BeautifulSoup
 
 def detect_device():
     try:
@@ -30,8 +32,34 @@ def get_summarizer_and_tokenizer(device):
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     return summarizer, tokenizer
 
+def extract_source_name(url):
+    try:
+        resp = requests.get(url, timeout=10)
+        soup = BeautifulSoup(resp.text, "html.parser")
+        # Try Open Graph site name
+        og_site = soup.find("meta", property="og:site_name")
+        if og_site and og_site.get("content"):
+            return og_site["content"].strip()
+        # Try Twitter site
+        twitter_site = soup.find("meta", attrs={"name": "twitter:site"})
+        if twitter_site and twitter_site.get("content"):
+            return twitter_site["content"].strip().lstrip('@')
+        # Try <title>
+        if soup.title and soup.title.string:
+            return soup.title.string.strip()
+        # Fallback to domain
+        from urllib.parse import urlparse
+        return urlparse(url).netloc
+    except Exception as e:
+        print(f"Error extracting source name: {e}")
+        from urllib.parse import urlparse
+        return urlparse(url).netloc
+
 def process_article(article_info, summarizer, tokenizer, summary_max_words):
     print(f"Processing article: {article_info['url']}")  # Debug print
+    # Extract source/publication name before processing
+    publication_name = extract_source_name(article_info['url'])
+    print(f"Extracted source: {publication_name}")  # Debug print
     article = Article(article_info['url'])
     try:
         article.download()
@@ -73,12 +101,14 @@ def process_article(article_info, summarizer, tokenizer, summary_max_words):
                 sentences.pop()
             summary = " ".join(sentences).strip()
         print("Article processed successfully.")  # Debug print
+
         return {
             "headline": article_info['title'].replace('\n', ' ').replace('\r', ' '),
             "body": text,
             "author": ", ".join(article.authors) if article.authors else "",
             "publication_date": article_info.get('published', ''),
-            "publication_name": article.source_url or "",
+            "publication_name": publication_name,
+            "source": publication_name,
             "summary": summary,
             "url": article_info['url']
         }
@@ -86,27 +116,39 @@ def process_article(article_info, summarizer, tokenizer, summary_max_words):
         print("Failed to process article.")  # Debug print
         return None
 
-def export_to_markdown(records, export_path):
+def export_to_markdown(records, export_path, summary_headline=""):
     print("Exporting records to markdown...")  # Debug print
     import datetime
-    from config import NEWSLETTER_HEADLINE
+    from config import NEWSLETTER_HEADLINE, APPEND_DATE_TO_HEADLINE
     date_str = datetime.datetime.now().strftime("%Y%m%d")
+    headline_date = datetime.datetime.now().strftime("%A %B %d")
     filename = os.path.join(export_path, f"newsletter_{date_str}.md")
     with open(filename, "w", encoding="utf-8") as f:
-        f.write(f"# {NEWSLETTER_HEADLINE}\n\n")
-        for rec in records:
+        # Compose the top headline with the summary headline if present
+        top_headline = NEWSLETTER_HEADLINE
+        if summary_headline:
+            top_headline = f"{NEWSLETTER_HEADLINE} {summary_headline}"
+        if APPEND_DATE_TO_HEADLINE:
+            f.write(f"# {top_headline} {headline_date}\n\n")
+        else:
+            f.write(f"# {top_headline}\n\n")
+        for idx, rec in enumerate(records):
             headline = rec['headline'].replace('\n', ' ').replace('\r', ' ')
             headline = headline.replace('[', '\\[').replace(']', '\\]')
             print(f"Markdown headline: {headline}")  # Debug print to check truncation
+            # Headline as a link, then two spaces and newline
+            f.write(f"[{headline}]({rec['url']})  \n")
+            # Source, hyphen, pubdate (mm/dd/yy), then two spaces and newline
+            pubdate = rec['publication_date']
             try:
-                conn = sqlite3.connect(":memory:")  # No DB check here, just for compatibility
-                conn.close()
-            except Exception as e:
-                print(f"DB headline check error: {e}")
-            f.write(f"[{headline}]({rec['url']})\n")
-            f.write(f"{rec['publication_name']}\n")
-            f.write(f"{rec['publication_date']}\n")
-            f.write(f"{rec['summary']}\n\n")
+                pubdate_fmt = datetime.datetime.strptime(pubdate, "%Y-%m-%d").strftime("%m/%d/%y")
+            except Exception:
+                pubdate_fmt = pubdate
+            f.write(f"{rec['source']} - {pubdate_fmt}  \n")
+            # Summary, then newline
+            f.write(f"{rec['summary']}\n")
+            # Add an additional newline before the section separator
+            f.write("\n---\n\n")
     print(f"Exported to {filename}")
 import feedparser
 import datetime

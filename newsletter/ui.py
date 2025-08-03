@@ -20,8 +20,8 @@ def select_articles_gui(articles):
     scrollbar.config(command=listbox.yview)
 
     for idx, article in enumerate(articles):
-        safe_title = article['title'].replace("'", "\\'").replace('"', '\\"')
-        listbox.insert(END, safe_title)
+        # Show the title as-is, without escaping quotes
+        listbox.insert(END, article['title'])
 
     btn = tk.Button(root, text="OK", command=on_ok)
     btn.pack()
@@ -29,4 +29,3 @@ def select_articles_gui(articles):
     selected = [articles[i] for i in selected_indices]
     print(f"{len(selected_indices)} articles selected.")  # Debug print (after selection)
     return selected
-
