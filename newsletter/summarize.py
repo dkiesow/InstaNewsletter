@@ -6,6 +6,7 @@ import sqlite3
 import os
 import requests
 from bs4 import BeautifulSoup
+from config import SUMMARY_MAX_WORDS, NUM_BEAMS
 
 def detect_device():
     try:
@@ -68,7 +69,10 @@ def extract_source_name(url):
         from urllib.parse import urlparse
         return urlparse(url).netloc
 
-def process_article(article_info, summarizer, tokenizer, summary_max_words):
+def process_article(article_info, summarizer, tokenizer, summary_max_words, num_beams=None):
+    from config import NUM_BEAMS
+    if num_beams is None:
+        num_beams = NUM_BEAMS
     print(f"Processing article: {article_info['url']}")  # Debug print
     # Extract source/publication name before processing
     publication_name = extract_source_name(article_info['url'])
@@ -94,7 +98,8 @@ def process_article(article_info, summarizer, tokenizer, summary_max_words):
                 truncated_text,
                 max_length=summary_max_words,
                 min_length=max(20, summary_max_words // 2),
-                do_sample=False
+                do_sample=False,
+                num_beams=num_beams
             )
             summary = summary_outputs[0]['summary_text'].strip()
             summary_words = summary.split()
