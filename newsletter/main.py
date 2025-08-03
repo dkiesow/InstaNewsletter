@@ -2,7 +2,7 @@ import os
 import sys
 import datetime
 from queue import Queue
-from config import INSTAPAPER_RSS_URL, DB_PATH, EXPORT_PATH, MAX_ARTICLES_FOR_SELECTION, SUMMARY_MAX_WORDS
+from config import RSS_URL, DB_PATH, EXPORT_PATH, MAX_ARTICLES_FOR_SELECTION, SUMMARY_MAX_WORDS
 
 from newsletter.db import (
     ensure_model_table_and_get_device,
@@ -36,7 +36,7 @@ def main():
     summarizer, tokenizer = get_summarizer_and_tokenizer(device)
 
     articles = fetch_instapaper_articles(
-        INSTAPAPER_RSS_URL, DB_PATH, MAX_ARTICLES_FOR_SELECTION
+        RSS_URL, DB_PATH, MAX_ARTICLES_FOR_SELECTION
     )
     if not articles:
         print("No articles found from the past 7 days.")

@@ -32,14 +32,14 @@ pip install -r requirements.txt
 Copy `newsletter/config_template.py` to `newsletter/config.py` and edit the variables:
 
 ```python
-INSTAPAPER_RSS_URL = "https://www.instapaper.com/rss/your_feed_id/your_secret"
+RSS_URL = "https://www.instapaper.com/rss/your_feed_id/your_secret"
 DB_PATH = "newsletter.sqlite3"
 EXPORT_PATH = "/path/to/export"
 MAX_ARTICLES_FOR_SELECTION = 30  # Maximum number of articles to present for selection
 SUMMARY_MAX_WORDS = 100          # Maximum number of words in the summary
 ```
 
-- `INSTAPAPER_RSS_URL`: Your Instapaper RSS feed URL.
+- `RSS_URL`: Your RSS feed URL.
 - `DB_PATH`: Path to the SQLite database file.
 - `EXPORT_PATH`: Directory where Markdown files will be saved.
 - `MAX_ARTICLES_FOR_SELECTION`: Maximum number of articles to show in the selection UI.
@@ -65,6 +65,7 @@ python -m newsletter.main
 - `lxml_html_clean`
 - `transformers`
 - `torch`
+- `inflect`
 - `tkinter` (standard with Python)
 - `sqlite3` (standard with Python)
 

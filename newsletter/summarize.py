@@ -119,7 +119,7 @@ def process_article(article_info, summarizer, tokenizer, summary_max_words):
 def export_to_markdown(records, export_path, summary_headline=""):
     print("Exporting records to markdown...")  # Debug print
     import datetime
-    from config import NEWSLETTER_HEADLINE, APPEND_DATE_TO_HEADLINE
+    from config import NEWSLETTER_HEADLINE, APPEND_DATE_TO_HEADLINE, INCLUDE_DISCLAIMER, DISCLAIMER_TEXT
     date_str = datetime.datetime.now().strftime("%Y%m%d")
     headline_date = datetime.datetime.now().strftime("%A %B %d")
     filename = os.path.join(export_path, f"newsletter_{date_str}.md")
@@ -149,6 +149,9 @@ def export_to_markdown(records, export_path, summary_headline=""):
             f.write(f"{rec['summary']}\n")
             # Add an additional newline before the section separator
             f.write("\n---\n\n")
+        # Add disclaimer at the bottom if configured
+        if INCLUDE_DISCLAIMER and DISCLAIMER_TEXT:
+            f.write(f"{DISCLAIMER_TEXT}\n")
     print(f"Exported to {filename}")
 import feedparser
 import datetime

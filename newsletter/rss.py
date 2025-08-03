@@ -5,7 +5,7 @@ from newsletter.db import get_existing_urls
 from config import MAX_ARTICLE_AGE_DAYS
 
 def fetch_instapaper_articles(rss_url, db_path, max_articles):
-    print("Fetching articles from Instapaper RSS feed...")  # Debug print
+    print("Fetching articles from RSS feed...")  # Debug print
     feed = feedparser.parse(rss_url)
     since = datetime.datetime.now() - datetime.timedelta(days=MAX_ARTICLE_AGE_DAYS)
     recent = []
