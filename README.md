@@ -49,6 +49,7 @@ A Python application for creating newsletters from your Instapaper (or any) RSS 
    SUMMARY_MAX_WORDS = 100          # Maximum number of words in the summary
    DAYS_BACK = 7                    # Only include articles from the past N days
    HUGGINGFACE_MODEL = "facebook/bart-large-cnn"  # Model for summarization
+   NUM_BEAMS = 3                    # Number of beams for beam search in summarization
    ```
 
    - `RSS_URL`: Your RSS feed URL.
@@ -58,6 +59,7 @@ A Python application for creating newsletters from your Instapaper (or any) RSS 
    - `SUMMARY_MAX_WORDS`: Maximum number of words in the summary (summary will end at the nearest sentence boundary).
    - `DAYS_BACK`: Number of days to look back for articles.
    - `HUGGINGFACE_MODEL`: Hugging Face model to use for summarization.
+   - `NUM_BEAMS`: Number of beams for beam search in summarization (higher values may improve summary quality but are slower; default is 3). Adjust in `config.py` to tune summary determinism and quality.
 
 **Note:**  
 Do not commit your `config.py` or database/markdown files; they are excluded by `.gitignore`.
