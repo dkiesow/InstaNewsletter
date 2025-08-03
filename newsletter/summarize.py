@@ -34,7 +34,20 @@ def get_summarizer_and_tokenizer(device):
 
 def extract_source_name(url):
     try:
-        resp = requests.get(url, timeout=10)
+        # Use stealth headers to appear as a real browser
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            ),
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Connection": "keep-alive",
+            "DNT": "1",
+            "Upgrade-Insecure-Requests": "1",
+        }
+        resp = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(resp.text, "html.parser")
         # Try Open Graph site name
         og_site = soup.find("meta", property="og:site_name")
